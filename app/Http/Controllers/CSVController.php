@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SalesCSVProcess;
+use DB;
 use Illuminate\Support\Facades\Bus;
 
 class CSVController extends Controller
@@ -33,6 +34,12 @@ class CSVController extends Controller
 
     public function batch()
     {
-        return Bus::findBatch(request('id'));
+        return Bus::findBatch(request()->id);
+    }
+
+    public function pendingJob()
+    {
+        $batch = DB::table('job_batches')->where('pending_jobs', '>', 0)->latest()->first();
+        return $batch?->id ? Bus::findBatch($batch->id) : null;
     }
 }
