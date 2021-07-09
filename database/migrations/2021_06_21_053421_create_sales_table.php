@@ -16,6 +16,7 @@ class CreateSalesTable extends Migration
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
             $table->json('body');
+            $table->string('batch_id');
             $table->timestamps();
         });
     }

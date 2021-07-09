@@ -30,7 +30,7 @@ class CSVController extends Controller
         $batch = Bus::batch([])->dispatch();
 
         foreach ($chunks as $chunk) {
-            $batch->add(new SalesCSVProcess($chunk, $header));
+            $batch->add(new SalesCSVProcess($chunk, $header, $batch->id));
         }
 
         UserBatch::create([
