@@ -32,7 +32,9 @@ class SalesCSVProcess implements ShouldQueue
     public function handle()
     {
         foreach (array_map('str_getcsv', $this->chunk) as $chunk) {
-            Sales::create(array_combine($this->header, $chunk));
+            Sales::create([
+                'body' => json_encode(array_combine($this->header, $chunk)),
+            ]);
         }
     }
 }
