@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Jobs\SalesCSVProcess;
 use App\Models\UserBatch;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\DB;
 
 class CSVController extends Controller
 {
@@ -16,6 +15,10 @@ class CSVController extends Controller
 
     public function upload()
     {
+        request()->validate([
+            'csv' => 'required',
+        ]);
+
         $items = file(request()->csv);
 
         $header = str_getcsv($items[0]);
@@ -36,6 +39,8 @@ class CSVController extends Controller
             'file_name' => request()->name,
         ]);
 
+        $batch->name = request()->name;
+
         return $batch;
     }
 
@@ -44,10 +49,11 @@ class CSVController extends Controller
         return Bus::findBatch(request()->id);
     }
 
-    public function batches()
+    public function history()
     {
         $batches = UserBatch::where('user_id', auth('api')->id())
             ->leftJoin('job_batches', 'batch_id', '=', 'job_batches.id')
+            ->latest('job_batches.finished_at')
             ->get();
 
         foreach ($batches as $batch) {
@@ -58,15 +64,24 @@ class CSVController extends Controller
         return $batches;
     }
 
-    public function pendingJob()
+    public function batches()
     {
-        $batch = DB::table('user_has_batches')
-            ->where('user_id', auth('api')->id())
-            ->leftJoin('job_batches', 'batch_id', '=', 'job_batches.id')
-            ->where('job_batches.pending_jobs', '>', 0)
-            ->latest('job_batches.created_at')
-            ->first('job_batches.id');
+        $results = [];
 
-        return $batch?->id ? Bus::findBatch($batch->id) : null;
+        $qry = UserBatch::where('user_id', auth('api')->id())
+            ->leftJoin('job_batches', 'batch_id', '=', 'job_batches.id');
+
+        request()->ids
+        ? $qry->whereIn('batch_id', request()->ids)
+        : $qry->where('job_batches.pending_jobs', '>', 0);
+
+        $batches = $qry->get(['batch_id', 'file_name']);
+
+        foreach ($batches as $key => $batch) {
+            $results[$key]       = Bus::findBatch($batch->batch_id);
+            $results[$key]->name = $batch->file_name;
+        }
+
+        return $results;
     }
 }
