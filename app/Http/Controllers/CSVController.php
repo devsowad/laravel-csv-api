@@ -15,6 +15,7 @@ class CSVController extends Controller
 
     public function upload()
     {
+
         request()->validate([
             'csv' => 'required',
         ]);

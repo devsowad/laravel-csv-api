@@ -10,4 +10,9 @@ class Sales extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    public function batch()
+    {
+        return $this->hasOne(UserBatch::class, 'batch_id', 'batch_id');
+    }
 }

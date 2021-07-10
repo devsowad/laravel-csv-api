@@ -19,7 +19,7 @@ class SalesCSVProcess implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(public array $chunk, public array $header, public string $batchId)
+    public function __construct(public array $chunk, public array $header, public string $currentBatchId)
     {
         //
     }
@@ -34,7 +34,7 @@ class SalesCSVProcess implements ShouldQueue
         foreach (array_map('str_getcsv', $this->chunk) as $chunk) {
             Sales::create([
                 'body'     => json_encode(array_combine($this->header, $chunk)),
-                'batch_id' => $this->batchId,
+                'batch_id' => $this->currentBatchId,
             ]);
         }
     }
