@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
         User::create([
+            'name'     => 'Laravel Queue',
             'email'    => 'csv@mail.com',
             'password' => bcrypt('Pa$$w0rd!'),
         ]);
