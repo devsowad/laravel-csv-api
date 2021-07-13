@@ -1,2 +1,2 @@
 web: vendor/bin/heroku-php-apache2 public/
-worker: php artisan queue:work --tries=3
+supervisor: supervisord -c supervisor.conf -n
